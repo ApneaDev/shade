@@ -1,25 +1,22 @@
 const Discord = require('discord.js');
 const config = require('./config.json');
+const wordlist = require('./wordlist.js').definitions();
 const client = new Discord.Client();
-
 
 client.once('ready', () => {
 	console.log('Ready!');
 });
 
 client.on('message', message => {
-	if (!message.content.startsWith(prefix) || message.author.bot) return;
+	if (message.author.bot) return;
 
-	const args = message.content.slice(prefix.length).trim().split(/ +/);
-	const command = args.shift().toLowerCase();
-
-	if (command === 'ping') {
-		message.channel.send('Pong.');
-	} else if (command === 'beep') {
-		message.channel.send('Boop.');
+	for (const regex in wordlist) {
+		if (message.content.match(new RegExp(regex, 'i'))) {
+			wordlist[regex](message);
+			return;
+		}
 	}
-	// other commands...
-});
+})
 
 client.login(config.token);
 // https://discord.com/oauth2/authorize?client_id=769642777314328638&scope=bot
